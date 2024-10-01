@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Jogo de Alimentação Saudável</title>
+    <title>-Jogo de Alimentação Saudável-</title>
     <style>
         body {
             text-align: center;
@@ -105,11 +105,11 @@
 </head>
 <body>
 
-<h1>Jogo de Alimentação Saudável</h1>
+<h1>-Jogo de Alimentação Saudável-</h1>
 
 <div id="gameContainer">
     <div id="healthySide"></div>
-    <div id="middleSpace"></div>
+    <div id="middleSpace"></div> <!-- Espaço central -->
     <div id="unhealthySide"></div>
     <div id="score">Pontuação: 0</div>
 </div>
@@ -273,7 +273,6 @@
         feedbackMessage.innerText = "Fim do jogo! Sua pontuação final é: " + score + "\n" + feedback;
         feedbackMessage.style.display = 'block';
 
-        // Aqui, garantimos que o botão "Jogar Novamente" apareça corretamente.
         playAgainButton.style.display = 'block';
     }
 
