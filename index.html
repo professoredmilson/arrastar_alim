@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>-Jogo de Alimentação Saudável-</title>
+    <title>Jogo de Alimentação Saudável</title>
     <style>
         body {
             text-align: center;
@@ -18,13 +18,13 @@
             background-color: #f0f0f0;
         }
         .food {
-            width: 70px;
+            width: 70px; /* Aumentar tamanho da imagem */
             height: 70px;
             position: absolute;
             top: 0;
-            left: calc(50% - 35px);
+            left: calc(50% - 35px); /* Descer pelo centro, ajustado para novo tamanho */
             cursor: grab;
-            animation: slideDown 10s linear forwards;
+            animation: slideDown 10s linear forwards; /* Animação para deslizar para baixo */
         }
         @keyframes slideDown {
             0% { top: 0; }
@@ -32,25 +32,25 @@
         }
         #healthySide, #unhealthySide {
             position: absolute;
-            width: 39.6%; /* Ajustado para aumentar o espaço no meio */
+            width: 32%; /* Ajuste para deixar um espaço maior no meio */
             height: 100%;
             top: 0;
             cursor: pointer;
         }
         #healthySide {
             left: 0;
-            background-color: rgba(0, 255, 0, 0.2);
+            background-color: rgba(0, 255, 0, 0.2); /* Lado esquerdo (verde) */
         }
         #unhealthySide {
             right: 0;
-            background-color: rgba(255, 0, 0, 0.2);
+            background-color: rgba(255, 0, 0, 0.2); /* Lado direito (vermelho) */
         }
         #middleSpace {
             position: absolute;
-            width: 20.8%; /* Faixa central aumentada em 60% */
+            width: 36%; /* Faixa central aumentada em 60% */
             height: 100%;
             top: 0;
-            left: 39.6%;
+            left: 32%;
             background-color: transparent;
         }
         #score {
@@ -93,10 +93,8 @@
             background-color: #45a049;
         }
         #feedbackMessage {
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
+            position: relative;
+            margin-top: 20px;
             font-size: 24px;
             font-weight: bold;
             display: none;
@@ -105,7 +103,7 @@
 </head>
 <body>
 
-<h1>-Jogo de Alimentação Saudável-</h1>
+<h1>Jogo de Alimentação Saudável</h1>
 
 <div id="gameContainer">
     <div id="healthySide"></div>
@@ -119,10 +117,10 @@
 <button id="helpButton" onclick="showHelp()">?</button>
 
 <!-- Botão "Jogar Novamente" -->
-<button id="playAgainButton" onclick="startGame()">JOGAR NOVAMENTE</button>
-
-<!-- Feedback -->
-<div id="feedbackMessage"></div>
+<div id="feedbackContainer">
+    <div id="feedbackMessage"></div>
+    <button id="playAgainButton" onclick="startGame()">JOGAR NOVAMENTE</button>
+</div>
 
 <!-- Sons -->
 <audio id="correctSound" src="correct.mp3"></audio>
@@ -148,7 +146,7 @@
 
     let score = 0;
     let foodCount = 0;
-    const maxFoods = 15;
+    const maxFoods = 15; // Quantidade máxima de alimentos
     const gameContainer = document.getElementById('gameContainer');
     const scoreDisplay = document.getElementById('score');
     const healthySide = document.getElementById('healthySide');
@@ -159,11 +157,14 @@
     const startButton = document.getElementById('startButton');
     const helpButton = document.getElementById('helpButton');
     const feedbackMessage = document.getElementById('feedbackMessage');
+    const feedbackContainer = document.getElementById('feedbackContainer');
 
     function startGame() {
+        // Esconde os botões de início e ajuda
         startButton.style.display = 'none';
         helpButton.style.display = 'none';
         
+        // Reiniciar estado
         score = 0;
         foodCount = 0;
         scoreDisplay.innerText = "Pontuação: " + score;
@@ -171,8 +172,8 @@
         gameContainer.appendChild(healthySide);
         gameContainer.appendChild(unhealthySide);
         gameContainer.appendChild(scoreDisplay);
-        playAgainButton.style.display = 'none';
         feedbackMessage.style.display = 'none';
+        playAgainButton.style.display = 'none'; // Certifica-se que o botão "Jogar Novamente" está escondido
 
         dropFood();
     }
@@ -191,13 +192,14 @@
         gameContainer.appendChild(food);
         makeDraggable(food);
 
-        setTimeout(dropFood, 2000);
+        // Próxima comida aparece após um intervalo
+        setTimeout(dropFood, 2000); // Controla a frequência dos alimentos
     }
 
     function createFoodElement() {
         const foodData = foods[Math.floor(Math.random() * foods.length)];
         const food = document.createElement('img');
-        food.src = foodData.src;
+        food.src = foodData.src; // Certifique-se de que o caminho da imagem esteja correto
         food.className = 'food';
         food.dataset.healthy = foodData.healthy;
 
@@ -207,6 +209,32 @@
     function makeDraggable(food) {
         let offsetX, offsetY;
 
+        // Detecta touch para telas de smartphones
+        food.ontouchstart = function (e) {
+            const touch = e.touches[0];
+            offsetX = touch.clientX - food.getBoundingClientRect().left;
+            offsetY = touch.clientY - food.getBoundingClientRect().top;
+
+            document.ontouchmove = function (event) {
+                const moveTouch = event.touches[0];
+                moveAt(moveTouch.clientX, moveTouch.clientY);
+            };
+
+            document.ontouchend = function (event) {
+                document.ontouchmove = null;
+                document.ontouchend = null;
+
+                checkDrop(event.changedTouches[0].clientX, food);
+            };
+
+            function moveAt(x, y) {
+                food.style.left = (x - offsetX) + 'px';
+                food.style.top = (y - offsetY) + 'px';
+                food.style.animation = 'none'; // Interrompe a animação ao interagir
+            }
+        };
+
+        // Detecta drag para desktop
         food.onmousedown = function (e) {
             offsetX = e.clientX - food.getBoundingClientRect().left;
             offsetY = e.clientY - food.getBoundingClientRect().top;
@@ -225,33 +253,35 @@
             function moveAt(x, y) {
                 food.style.left = (x - offsetX) + 'px';
                 food.style.top = (y - offsetY) + 'px';
-                food.style.animation = 'none';
+                food.style.animation = 'none'; // Interrompe a animação ao interagir
             }
         };
     }
 
     function checkDrop(x, food) {
-        const foodType = food.dataset.healthy === 'true';
-        const containerRect = gameContainer.getBoundingClientRect();
+        const healthySideRect = healthySide.getBoundingClientRect();
+        const unhealthySideRect = unhealthySide.getBoundingClientRect();
 
-        if (x < containerRect.width * 0.396) {
-            if (foodType) {
-                score++;
+        if (x < healthySideRect.right) {
+            // Alimento foi para o lado saudável
+            if (food.dataset.healthy === 'true') {
                 correctSound.play();
+                score++;
             } else {
                 wrongSound.play();
             }
-        } else if (x > containerRect.width * 0.604) {
-            if (!foodType) {
-                score++;
+        } else if (x > unhealthySideRect.left) {
+            // Alimento foi para o lado não saudável
+            if (food.dataset.healthy === 'false') {
                 correctSound.play();
+                score++;
             } else {
                 wrongSound.play();
             }
         }
 
         scoreDisplay.innerText = "Pontuação: " + score;
-        food.remove();
+        food.remove(); // Remove a imagem após o drop
         foodCount++;
     }
 
@@ -273,9 +303,10 @@
         feedbackMessage.innerText = "Fim do jogo! Sua pontuação final é: " + score + "\n" + feedback;
         feedbackMessage.style.display = 'block';
 
-        playAgainButton.style.display = 'block';
+        playAgainButton.style.display = 'block'; // Exibir o botão "Jogar Novamente"
     }
 
+    // Inicia o jogo ao carregar a página
     window.onload = function() {
         startButton.style.display = 'block';
         helpButton.style.display = 'block';
