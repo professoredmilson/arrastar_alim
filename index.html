@@ -18,13 +18,13 @@
             background-color: #f0f0f0;
         }
         .food {
-            width: 70px; /* Aumentar tamanho da imagem */
+            width: 70px;
             height: 70px;
             position: absolute;
             top: 0;
-            left: calc(50% - 35px); /* Descer pelo centro, ajustado para novo tamanho */
+            left: calc(50% - 35px);
             cursor: grab;
-            animation: slideDown 10s linear forwards; /* Animação para deslizar para baixo */
+            animation: slideDown 10s linear forwards;
         }
         @keyframes slideDown {
             0% { top: 0; }
@@ -32,25 +32,25 @@
         }
         #healthySide, #unhealthySide {
             position: absolute;
-            width: 43.5%; /* Ajuste para deixar um espaço maior no meio */
+            width: 39.6%; /* Ajustado para aumentar o espaço no meio */
             height: 100%;
             top: 0;
             cursor: pointer;
         }
         #healthySide {
             left: 0;
-            background-color: rgba(0, 255, 0, 0.2); /* Lado esquerdo (verde) */
+            background-color: rgba(0, 255, 0, 0.2);
         }
         #unhealthySide {
             right: 0;
-            background-color: rgba(255, 0, 0, 0.2); /* Lado direito (vermelho) */
+            background-color: rgba(255, 0, 0, 0.2);
         }
         #middleSpace {
             position: absolute;
-            width: 13%; /* Faixa central aumentada em 30% */
+            width: 20.8%; /* Faixa central aumentada em 60% */
             height: 100%;
             top: 0;
-            left: 43.5%;
+            left: 39.6%;
             background-color: transparent;
         }
         #score {
@@ -148,7 +148,7 @@
 
     let score = 0;
     let foodCount = 0;
-    const maxFoods = 15; // Quantidade máxima de alimentos
+    const maxFoods = 15;
     const gameContainer = document.getElementById('gameContainer');
     const scoreDisplay = document.getElementById('score');
     const healthySide = document.getElementById('healthySide');
@@ -161,11 +161,9 @@
     const feedbackMessage = document.getElementById('feedbackMessage');
 
     function startGame() {
-        // Esconde os botões de início e ajuda
         startButton.style.display = 'none';
         helpButton.style.display = 'none';
         
-        // Reiniciar estado
         score = 0;
         foodCount = 0;
         scoreDisplay.innerText = "Pontuação: " + score;
@@ -193,14 +191,13 @@
         gameContainer.appendChild(food);
         makeDraggable(food);
 
-        // Próxima comida aparece após um intervalo
-        setTimeout(dropFood, 2000); // Controla a frequência dos alimentos
+        setTimeout(dropFood, 2000);
     }
 
     function createFoodElement() {
         const foodData = foods[Math.floor(Math.random() * foods.length)];
         const food = document.createElement('img');
-        food.src = foodData.src; // Certifique-se de que o caminho da imagem esteja correto
+        food.src = foodData.src;
         food.className = 'food';
         food.dataset.healthy = foodData.healthy;
 
@@ -228,7 +225,7 @@
             function moveAt(x, y) {
                 food.style.left = (x - offsetX) + 'px';
                 food.style.top = (y - offsetY) + 'px';
-                food.style.animation = 'none'; // Interrompe a animação ao interagir
+                food.style.animation = 'none';
             }
         };
     }
@@ -237,17 +234,14 @@
         const foodType = food.dataset.healthy === 'true';
         const containerRect = gameContainer.getBoundingClientRect();
 
-        // Verifica se a comida foi jogada no lado saudável
-        if (x < containerRect.width * 0.435) {
+        if (x < containerRect.width * 0.396) {
             if (foodType) {
                 score++;
                 correctSound.play();
             } else {
                 wrongSound.play();
             }
-        }
-        // Verifica se a comida foi jogada no lado não saudável
-        else if (x > containerRect.width * 0.565) {
+        } else if (x > containerRect.width * 0.604) {
             if (!foodType) {
                 score++;
                 correctSound.play();
@@ -279,10 +273,9 @@
         feedbackMessage.innerText = "Fim do jogo! Sua pontuação final é: " + score + "\n" + feedback;
         feedbackMessage.style.display = 'block';
 
-        playAgainButton.style.display = 'block'; // Exibir o botão "Jogar Novamente"
+        playAgainButton.style.display = 'block';
     }
 
-    // Inicia o jogo ao carregar a página
     window.onload = function() {
         startButton.style.display = 'block';
         helpButton.style.display = 'block';
