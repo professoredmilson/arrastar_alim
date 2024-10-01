@@ -259,58 +259,54 @@
     }
 
     function checkDrop(x, food) {
-        const healthySideRect = healthySide.getBoundingClientRect();
-        const unhealthySideRect = unhealthySide.getBoundingClientRect();
+        const foodRect = food.getBoundingClientRect();
+        const healthyRect = healthySide.getBoundingClientRect();
+        const unhealthyRect = unhealthySide.getBoundingClientRect();
 
-        if (x < healthySideRect.right) {
-            // Alimento foi para o lado saudável
+        // Verifica se o alimento foi solto na área saudável
+        if (foodRect.right > healthyRect.left && foodRect.left < healthyRect.right &&
+            foodRect.bottom > healthyRect.top && foodRect.top < healthyRect.bottom) {
             if (food.dataset.healthy === 'true') {
+                score += 10; // Aumenta a pontuação
+                scoreDisplay.innerText = "Pontuação: " + score;
                 correctSound.play();
-                score++;
             } else {
-                wrongSound.play();
-            }
-        } else if (x > unhealthySideRect.left) {
-            // Alimento foi para o lado não saudável
-            if (food.dataset.healthy === 'false') {
-                correctSound.play();
-                score++;
-            } else {
+                score -= 5; // Diminui a pontuação
+                scoreDisplay.innerText = "Pontuação: " + score;
                 wrongSound.play();
             }
         }
 
-        scoreDisplay.innerText = "Pontuação: " + score;
-        food.remove(); // Remove a imagem após o drop
+        // Verifica se o alimento foi solto na área não saudável
+        if (foodRect.right > unhealthyRect.left && foodRect.left < unhealthyRect.right &&
+            foodRect.bottom > unhealthyRect.top && foodRect.top < unhealthyRect.bottom) {
+            if (food.dataset.healthy === 'false') {
+                score += 10; // Aumenta a pontuação
+                scoreDisplay.innerText = "Pontuação: " + score;
+                correctSound.play();
+            } else {
+                score -= 5; // Diminui a pontuação
+                scoreDisplay.innerText = "Pontuação: " + score;
+                wrongSound.play();
+            }
+        }
+
+        // Remove o alimento do jogo após ser solto
+        food.remove();
         foodCount++;
+
+        // Se a contagem de alimentos atingir o máximo, termina o jogo
+        if (foodCount >= maxFoods) {
+            endGame();
+        }
     }
 
     function endGame() {
-        let feedback = "";
-
-        if (score === 15) {
-            feedback = "Parabéns, você é muito bem informado sobre alimentação!";
-        } else if (score >= 13) {
-            feedback = "Bom, mas precisa melhorar mais um pouquinho!";
-        } else if (score >= 10) {
-            feedback = "Quando se trata de alimentação, não podemos ter dúvidas. Você precisa melhorar!";
-        } else if (score >= 7) {
-            feedback = "Nada bom! Alimentação e saúde são grandes parceiras. Você precisa ficar mais atento aos tipos de alimentos.";
-        } else {
-            feedback = "Péssimo!!! Precisa melhorar Muito!!!!";
-        }
-
-        feedbackMessage.innerText = "Fim do jogo! Sua pontuação final é: " + score + "\n" + feedback;
+        // Exibir mensagem de feedback e botão "Jogar Novamente"
+        feedbackMessage.innerText = `Fim de jogo! Sua pontuação final é: ${score}.`;
         feedbackMessage.style.display = 'block';
-
-        playAgainButton.style.display = 'block'; // Exibir o botão "Jogar Novamente"
+        playAgainButton.style.display = 'block';
     }
-
-    // Inicia o jogo ao carregar a página
-    window.onload = function() {
-        startButton.style.display = 'block';
-        helpButton.style.display = 'block';
-    };
 </script>
 
 </body>
