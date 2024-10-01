@@ -32,7 +32,7 @@
         }
         #healthySide, #unhealthySide {
             position: absolute;
-            width: 32%; /* Ajuste para deixar um espaço maior no meio */
+            width: 43.5%; /* Ajuste para deixar um espaço maior no meio */
             height: 100%;
             top: 0;
             cursor: pointer;
@@ -47,10 +47,10 @@
         }
         #middleSpace {
             position: absolute;
-            width: 36%; /* Faixa central aumentada em 60% */
+            width: 13%; /* Faixa central aumentada em 30% */
             height: 100%;
             top: 0;
-            left: 32%;
+            left: 43.5%;
             background-color: transparent;
         }
         #score {
@@ -93,8 +93,10 @@
             background-color: #45a049;
         }
         #feedbackMessage {
-            position: relative;
-            margin-top: 20px;
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
             font-size: 24px;
             font-weight: bold;
             display: none;
@@ -117,10 +119,10 @@
 <button id="helpButton" onclick="showHelp()">?</button>
 
 <!-- Botão "Jogar Novamente" -->
-<div id="feedbackContainer">
-    <div id="feedbackMessage"></div>
-    <button id="playAgainButton" onclick="startGame()">JOGAR NOVAMENTE</button>
-</div>
+<button id="playAgainButton" onclick="startGame()">JOGAR NOVAMENTE</button>
+
+<!-- Feedback -->
+<div id="feedbackMessage"></div>
 
 <!-- Sons -->
 <audio id="correctSound" src="correct.mp3"></audio>
@@ -157,7 +159,6 @@
     const startButton = document.getElementById('startButton');
     const helpButton = document.getElementById('helpButton');
     const feedbackMessage = document.getElementById('feedbackMessage');
-    const feedbackContainer = document.getElementById('feedbackContainer');
 
     function startGame() {
         // Esconde os botões de início e ajuda
@@ -172,8 +173,8 @@
         gameContainer.appendChild(healthySide);
         gameContainer.appendChild(unhealthySide);
         gameContainer.appendChild(scoreDisplay);
+        playAgainButton.style.display = 'none';
         feedbackMessage.style.display = 'none';
-        playAgainButton.style.display = 'none'; // Certifica-se que o botão "Jogar Novamente" está escondido
 
         dropFood();
     }
@@ -209,32 +210,6 @@
     function makeDraggable(food) {
         let offsetX, offsetY;
 
-        // Detecta touch para telas de smartphones
-        food.ontouchstart = function (e) {
-            const touch = e.touches[0];
-            offsetX = touch.clientX - food.getBoundingClientRect().left;
-            offsetY = touch.clientY - food.getBoundingClientRect().top;
-
-            document.ontouchmove = function (event) {
-                const moveTouch = event.touches[0];
-                moveAt(moveTouch.clientX, moveTouch.clientY);
-            };
-
-            document.ontouchend = function (event) {
-                document.ontouchmove = null;
-                document.ontouchend = null;
-
-                checkDrop(event.changedTouches[0].clientX, food);
-            };
-
-            function moveAt(x, y) {
-                food.style.left = (x - offsetX) + 'px';
-                food.style.top = (y - offsetY) + 'px';
-                food.style.animation = 'none'; // Interrompe a animação ao interagir
-            }
-        };
-
-        // Detecta drag para desktop
         food.onmousedown = function (e) {
             offsetX = e.clientX - food.getBoundingClientRect().left;
             offsetY = e.clientY - food.getBoundingClientRect().top;
@@ -259,29 +234,30 @@
     }
 
     function checkDrop(x, food) {
-        const healthySideRect = healthySide.getBoundingClientRect();
-        const unhealthySideRect = unhealthySide.getBoundingClientRect();
+        const foodType = food.dataset.healthy === 'true';
+        const containerRect = gameContainer.getBoundingClientRect();
 
-        if (x < healthySideRect.right) {
-            // Alimento foi para o lado saudável
-            if (food.dataset.healthy === 'true') {
-                correctSound.play();
+        // Verifica se a comida foi jogada no lado saudável
+        if (x < containerRect.width * 0.435) {
+            if (foodType) {
                 score++;
+                correctSound.play();
             } else {
                 wrongSound.play();
             }
-        } else if (x > unhealthySideRect.left) {
-            // Alimento foi para o lado não saudável
-            if (food.dataset.healthy === 'false') {
-                correctSound.play();
+        }
+        // Verifica se a comida foi jogada no lado não saudável
+        else if (x > containerRect.width * 0.565) {
+            if (!foodType) {
                 score++;
+                correctSound.play();
             } else {
                 wrongSound.play();
             }
         }
 
         scoreDisplay.innerText = "Pontuação: " + score;
-        food.remove(); // Remove a imagem após o drop
+        food.remove();
         foodCount++;
     }
 
