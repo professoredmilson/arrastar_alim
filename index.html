@@ -1,0 +1,218 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jogo de Alimentação Saudável</title>
+    <style>
+        body {
+            text-align: center;
+            font-family: Arial, sans-serif;
+            margin: 0;
+            overflow: hidden;
+        }
+        #gameContainer {
+            position: relative;
+            width: 100%;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        .food {
+            width: 70px; /* Aumentado em 40% em relação ao original de 50px */
+            height: 70px;
+            position: absolute;
+            top: 0;
+            left: calc(50% - 35px); /* Descer pelo centro, ajustado para novo tamanho */
+            cursor: grab;
+            animation: slideDown 10s linear forwards; /* Animação para deslizar para baixo */
+        }
+        @keyframes slideDown {
+            0% { top: 0; }
+            100% { top: 100vh; }
+        }
+        #healthySide, #unhealthySide {
+            position: absolute;
+            width: 43.5%; /* Ajuste para deixar um espaço maior no meio */
+            height: 100%;
+            top: 0;
+            cursor: pointer;
+        }
+        #healthySide {
+            left: 0;
+            background-color: rgba(0, 255, 0, 0.2); /* Lado esquerdo (verde) */
+        }
+        #unhealthySide {
+            right: 0;
+            background-color: rgba(255, 0, 0, 0.2); /* Lado direito (vermelho) */
+        }
+        #middleSpace {
+            position: absolute;
+            width: 13%; /* Faixa central aumentada em 30% */
+            height: 100%;
+            top: 0;
+            left: 43.5%;
+            background-color: transparent;
+        }
+        #score {
+            position: absolute;
+            top: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            font-size: 24px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+
+<h1>Jogo de Alimentação Saudável</h1>
+
+<div id="gameContainer">
+    <div id="healthySide"></div>
+    <div id="middleSpace"></div> <!-- Espaço central -->
+    <div id="unhealthySide"></div>
+    <div id="score">Pontuação: 0</div>
+</div>
+
+<!-- Sons -->
+<audio id="correctSound" src="correct.mp3"></audio>
+<audio id="wrongSound" src="wrong.mp3"></audio>
+
+<script>
+    const foods = [
+        { src: 'apple.png', healthy: true },
+        { src: 'broccoli.png', healthy: true },
+        { src: 'salad.png', healthy: true },
+        { src: 'orange.png', healthy: true },
+        { src: 'fish.png', healthy: true },
+        { src: 'almond.png', healthy: true },
+        { src: 'carrot.png', healthy: true },
+        { src: 'burger.png', healthy: false },
+        { src: 'fries.png', healthy: false },
+        { src: 'soda.png', healthy: false },
+        { src: 'pizza.png', healthy: false },
+        { src: 'candy.png', healthy: false },
+        { src: 'donut.png', healthy: false },
+        { src: 'icecream.png', healthy: false }
+    ];
+
+    let score = 0;
+    let foodCount = 0;
+    const maxFoods = 15; // Quantidade máxima de alimentos
+    const gameContainer = document.getElementById('gameContainer');
+    const scoreDisplay = document.getElementById('score');
+    const healthySide = document.getElementById('healthySide');
+    const unhealthySide = document.getElementById('unhealthySide');
+    const correctSound = document.getElementById('correctSound');
+    const wrongSound = document.getElementById('wrongSound');
+
+    function startGame() {
+        score = 0;
+        foodCount = 0;
+        scoreDisplay.innerText = "Pontuação: " + score;
+        dropFood();
+    }
+
+    function dropFood() {
+        if (foodCount >= maxFoods) {
+            endGame();
+            return;
+        }
+
+        const food = createFoodElement();
+        gameContainer.appendChild(food);
+        makeDraggable(food);
+
+        // Próxima comida aparece após um intervalo
+        setTimeout(dropFood, 2000); // Controla a frequência dos alimentos
+    }
+
+    function createFoodElement() {
+        const foodData = foods[Math.floor(Math.random() * foods.length)];
+        const food = document.createElement('img');
+        food.src = foodData.src; // Certifique-se de que o caminho da imagem esteja correto
+        food.className = 'food';
+        food.dataset.healthy = foodData.healthy;
+
+        return food;
+    }
+
+    function makeDraggable(food) {
+        let offsetX, offsetY;
+
+        food.onmousedown = function (e) {
+            offsetX = e.clientX - food.getBoundingClientRect().left;
+            offsetY = e.clientY - food.getBoundingClientRect().top;
+
+            document.onmousemove = function (event) {
+                moveAt(event.clientX, event.clientY);
+            };
+
+            document.onmouseup = function (event) {
+                document.onmousemove = null;
+                document.onmouseup = null;
+
+                checkDrop(event.clientX, food);
+            };
+
+            function moveAt(x, y) {
+                food.style.left = (x - offsetX) + 'px';
+                food.style.top = (y - offsetY) + 'px';
+                food.style.animation = 'none'; // Interrompe a animação ao interagir
+            }
+        };
+    }
+
+    function checkDrop(x, food) {
+        const foodType = food.dataset.healthy === 'true';
+        const containerRect = gameContainer.getBoundingClientRect();
+
+        // Verifica se a comida foi jogada no lado saudável
+        if (x < containerRect.width * 0.435) {
+            if (foodType) {
+                score++;
+                correctSound.play();
+            } else {
+                wrongSound.play();
+            }
+        }
+        // Verifica se a comida foi jogada no lado não saudável
+        else if (x > containerRect.width * 0.565) {
+            if (!foodType) {
+                score++;
+                correctSound.play();
+            } else {
+                wrongSound.play();
+            }
+        }
+
+        scoreDisplay.innerText = "Pontuação: " + score;
+        food.remove();
+        foodCount++;
+    }
+
+    function endGame() {
+        let feedback = "";
+
+        if (score === 15) {
+            feedback = "Parabéns, você é muito bem informado sobre alimentação!";
+        } else if (score >= 13) {
+            feedback = "Bom, mas precisa melhorar mais um pouquinho!";
+        } else if (score >= 10) {
+            feedback = "Quando se trata de alimentação, não podemos ter dúvidas. Você precisa melhorar!";
+        } else if (score >= 7) {
+            feedback = "Nada bom! Alimentação e saúde são grandes parceiras. Você precisa ficar mais atento aos tipos de alimentos.";
+        } else {
+            feedback = "Péssimo!!! Precisa melhorar Muito!!!!";
+        }
+
+        alert("Fim do jogo! Sua pontuação final é: " + score + "\n" + feedback);
+        gameContainer.innerHTML = ""; // Limpa o jogo
+    }
+
+    // Inicia o jogo ao carregar a página
+    window.onload = startGame;
+</script>
+
+</body>
+</html>
