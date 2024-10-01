@@ -267,28 +267,22 @@
         if (foodRect.right > healthyRect.left && foodRect.left < healthyRect.right &&
             foodRect.bottom > healthyRect.top && foodRect.top < healthyRect.bottom) {
             if (food.dataset.healthy === 'true') {
-                score += 10; // Aumenta a pontuação
+                score += 1; // Aumenta a pontuação em 1 ponto
                 scoreDisplay.innerText = "Pontuação: " + score;
                 correctSound.play();
-            } else {
-                score -= 5; // Diminui a pontuação
-                scoreDisplay.innerText = "Pontuação: " + score;
-                wrongSound.play();
             }
+            // Não diminui pontos se o alimento for saudável solto na área não saudável
         }
 
         // Verifica se o alimento foi solto na área não saudável
         if (foodRect.right > unhealthyRect.left && foodRect.left < unhealthyRect.right &&
             foodRect.bottom > unhealthyRect.top && foodRect.top < unhealthyRect.bottom) {
             if (food.dataset.healthy === 'false') {
-                score += 10; // Aumenta a pontuação
+                score += 1; // Aumenta a pontuação em 1 ponto
                 scoreDisplay.innerText = "Pontuação: " + score;
                 correctSound.play();
-            } else {
-                score -= 5; // Diminui a pontuação
-                scoreDisplay.innerText = "Pontuação: " + score;
-                wrongSound.play();
             }
+            // Não diminui pontos se o alimento não saudável solto na área saudável
         }
 
         // Remove o alimento do jogo após ser solto
